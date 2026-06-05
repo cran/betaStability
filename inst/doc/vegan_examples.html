@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Yu Gao(gaoyu19920914@gmail.com)" />
+
+<meta name="date" content="2026-06-01" />
+
+<title>BetaStability with vegan datasets</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">BetaStability with vegan datasets</h1>
+<h4 class="author">Yu Gao(<a href="mailto:gaoyu19920914@gmail.com" class="email">gaoyu19920914@gmail.com</a>)</h4>
+<h4 class="date">2026-06-01</h4>
+
+
+
+<div id="betastability-with-vegan-datasets" class="section level1">
+<h1>BetaStability with vegan datasets</h1>
+<p>This vignette demonstrates the BetaStability package using
+<code>linearPred</code> with multiple datasets (BCI, dune, and mite)
+from the vegan package.</p>
+<div id="installation" class="section level2">
+<h2>Installation</h2>
+<p>First, install the package from GitHub:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># Install from GitHub</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co"># install.packages(&quot;devtools&quot;)</span></span>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co"># devtools::install_github(&quot;gaoyu19920914/betaStability&quot;)</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co"># OR install from BioConductor (in the future when it&#39;s available)</span></span>
+<span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co"># if (!requireNamespace(&quot;BiocManager&quot;, quietly = TRUE))</span></span>
+<span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#     install.packages(&quot;BiocManager&quot;)</span></span>
+<span id="cb1-8"><a href="#cb1-8" tabindex="-1"></a><span class="co"># BiocManager::install(&quot;betaStability&quot;)</span></span></code></pre></div>
+</div>
+<div id="loading-required-packages" class="section level2">
+<h2>Loading Required Packages</h2>
+<p>Load the BetaStability package and the vegan package for test
+data:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(betaStability)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">library</span>(vegan)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="fu">data</span>(<span class="st">&quot;BCI&quot;</span>, <span class="st">&quot;BCI.env&quot;</span>, <span class="st">&quot;mite&quot;</span>, <span class="st">&quot;mite.env&quot;</span>, <span class="st">&quot;dune&quot;</span>, <span class="st">&quot;dune.env&quot;</span>)</span></code></pre></div>
+</div>
+<div id="demonstrating-general-applicability-with-linearpred" class="section level2">
+<h2>Demonstrating General Applicability with linearPred</h2>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>df_prepare <span class="ot">&lt;-</span> <span class="cf">function</span>(df) {</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>    <span class="co"># Remove columns where all elements are the same</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>    df <span class="ot">&lt;-</span> df[, <span class="fu">vapply</span>(df, <span class="cf">function</span>(x) <span class="fu">length</span>(<span class="fu">unique</span>(x)) <span class="sc">&gt;</span> <span class="dv">1</span>, <span class="fu">logical</span>(<span class="dv">1</span>))]</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>    <span class="co"># Convert columns to integer if they contain different types of strings</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a>    <span class="cf">for</span> (col <span class="cf">in</span> <span class="fu">names</span>(df)) {</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a>        <span class="cf">if</span> (<span class="fu">is.character</span>(df[[col]]) <span class="sc">&amp;&amp;</span> <span class="fu">length</span>(<span class="fu">unique</span>(df[[col]])) <span class="sc">&gt;</span> <span class="dv">1</span>) {</span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a>            df[[col]] <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(<span class="fu">as.factor</span>(df[[col]]))</span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a>        }</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a>    }</span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a>    <span class="fu">return</span>(df)</span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a>}</span></code></pre></div>
+<div id="bci-dataset-with-linearpred" class="section level3">
+<h3>BCI Dataset with linearPred</h3>
+<p>Calculate stability for BCI dataset using
+<code>linearPred</code>:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="co"># Calculate stability with linearPred</span></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>stability_BCI_linear <span class="ot">&lt;-</span> <span class="fu">betaStability</span>(</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>    <span class="at">comtable =</span> BCI,</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>    <span class="at">envmeta =</span> BCI.env[, <span class="fu">c</span>(<span class="st">&quot;Precipitation&quot;</span>, <span class="st">&quot;Elevation&quot;</span>, <span class="st">&quot;EnvHet&quot;</span>)],</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">&quot;linearPred&quot;</span></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>)</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co"># Inspect the result</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="fu">head</span>(stability_BCI_linear)</span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;   stability_Linear</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; 1      0.053679327</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; 2      0.118797973</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; 3      0.052407524</span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; 4      0.087186422</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; 5     -0.034849722</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; 6      0.001645529</span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="fu">length</span>(stability_BCI_linear)</span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+</div>
+<div id="dune-dataset-with-linearpred" class="section level3">
+<h3>Dune Dataset with linearPred</h3>
+<p>Load the <code>dune</code> (community data) and <code>dune.env</code>
+(environmental metadata) datasets from the vegan package, then calculate
+stability:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">data</span>(dune)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">data</span>(dune.env)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co"># Inspect the data</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="fu">head</span>(dune)</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;   Achimill Agrostol Airaprae Alopgeni Anthodor Bellpere Bromhord Chenalbu</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; 1        1        0        0        0        0        0        0        0</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; 2        3        0        0        2        0        3        4        0</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; 3        0        4        0        7        0        2        0        0</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; 4        0        8        0        2        0        2        3        0</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; 5        2        0        0        0        4        2        2        0</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; 6        2        0        0        0        3        0        0        0</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt;   Cirsarve Comapalu Eleopalu Elymrepe Empenigr Hyporadi Juncarti Juncbufo</span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; 1        0        0        0        4        0        0        0        0</span></span>
+<span id="cb5-15"><a href="#cb5-15" tabindex="-1"></a><span class="co">#&gt; 2        0        0        0        4        0        0        0        0</span></span>
+<span id="cb5-16"><a href="#cb5-16" tabindex="-1"></a><span class="co">#&gt; 3        0        0        0        4        0        0        0        0</span></span>
+<span id="cb5-17"><a href="#cb5-17" tabindex="-1"></a><span class="co">#&gt; 4        2        0        0        4        0        0        0        0</span></span>
+<span id="cb5-18"><a href="#cb5-18" tabindex="-1"></a><span class="co">#&gt; 5        0        0        0        4        0        0        0        0</span></span>
+<span id="cb5-19"><a href="#cb5-19" tabindex="-1"></a><span class="co">#&gt; 6        0        0        0        0        0        0        0        0</span></span>
+<span id="cb5-20"><a href="#cb5-20" tabindex="-1"></a><span class="co">#&gt;   Lolipere Planlanc Poaprat Poatriv Ranuflam Rumeacet Sagiproc Salirepe</span></span>
+<span id="cb5-21"><a href="#cb5-21" tabindex="-1"></a><span class="co">#&gt; 1        7        0       4       2        0        0        0        0</span></span>
+<span id="cb5-22"><a href="#cb5-22" tabindex="-1"></a><span class="co">#&gt; 2        5        0       4       7        0        0        0        0</span></span>
+<span id="cb5-23"><a href="#cb5-23" tabindex="-1"></a><span class="co">#&gt; 3        6        0       5       6        0        0        0        0</span></span>
+<span id="cb5-24"><a href="#cb5-24" tabindex="-1"></a><span class="co">#&gt; 4        5        0       4       5        0        0        5        0</span></span>
+<span id="cb5-25"><a href="#cb5-25" tabindex="-1"></a><span class="co">#&gt; 5        2        5       2       6        0        5        0        0</span></span>
+<span id="cb5-26"><a href="#cb5-26" tabindex="-1"></a><span class="co">#&gt; 6        6        5       3       4        0        6        0        0</span></span>
+<span id="cb5-27"><a href="#cb5-27" tabindex="-1"></a><span class="co">#&gt;   Scorautu Trifprat Trifrepe Vicilath Bracruta Callcusp</span></span>
+<span id="cb5-28"><a href="#cb5-28" tabindex="-1"></a><span class="co">#&gt; 1        0        0        0        0        0        0</span></span>
+<span id="cb5-29"><a href="#cb5-29" tabindex="-1"></a><span class="co">#&gt; 2        5        0        5        0        0        0</span></span>
+<span id="cb5-30"><a href="#cb5-30" tabindex="-1"></a><span class="co">#&gt; 3        2        0        2        0        2        0</span></span>
+<span id="cb5-31"><a href="#cb5-31" tabindex="-1"></a><span class="co">#&gt; 4        2        0        1        0        2        0</span></span>
+<span id="cb5-32"><a href="#cb5-32" tabindex="-1"></a><span class="co">#&gt; 5        3        2        2        0        2        0</span></span>
+<span id="cb5-33"><a href="#cb5-33" tabindex="-1"></a><span class="co">#&gt; 6        3        5        5        0        6        0</span></span>
+<span id="cb5-34"><a href="#cb5-34" tabindex="-1"></a><span class="fu">head</span>(dune.env)</span>
+<span id="cb5-35"><a href="#cb5-35" tabindex="-1"></a><span class="co">#&gt;    A1 Moisture Management      Use Manure</span></span>
+<span id="cb5-36"><a href="#cb5-36" tabindex="-1"></a><span class="co">#&gt; 1 2.8        1         SF Haypastu      4</span></span>
+<span id="cb5-37"><a href="#cb5-37" tabindex="-1"></a><span class="co">#&gt; 2 3.5        1         BF Haypastu      2</span></span>
+<span id="cb5-38"><a href="#cb5-38" tabindex="-1"></a><span class="co">#&gt; 3 4.3        2         SF Haypastu      4</span></span>
+<span id="cb5-39"><a href="#cb5-39" tabindex="-1"></a><span class="co">#&gt; 4 4.2        2         SF Haypastu      4</span></span>
+<span id="cb5-40"><a href="#cb5-40" tabindex="-1"></a><span class="co">#&gt; 5 6.3        1         HF Hayfield      2</span></span>
+<span id="cb5-41"><a href="#cb5-41" tabindex="-1"></a><span class="co">#&gt; 6 4.3        1         HF Haypastu      2</span></span>
+<span id="cb5-42"><a href="#cb5-42" tabindex="-1"></a></span>
+<span id="cb5-43"><a href="#cb5-43" tabindex="-1"></a><span class="co"># Dimensions of the datasets</span></span>
+<span id="cb5-44"><a href="#cb5-44" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Dimensions of dune:&quot;</span>, <span class="fu">dim</span>(dune), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb5-45"><a href="#cb5-45" tabindex="-1"></a><span class="co">#&gt; Dimensions of dune: 20 30</span></span>
+<span id="cb5-46"><a href="#cb5-46" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Dimensions of dune.env:&quot;</span>, <span class="fu">dim</span>(dune.env), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb5-47"><a href="#cb5-47" tabindex="-1"></a><span class="co">#&gt; Dimensions of dune.env: 20 5</span></span>
+<span id="cb5-48"><a href="#cb5-48" tabindex="-1"></a></span>
+<span id="cb5-49"><a href="#cb5-49" tabindex="-1"></a><span class="co"># Process environmental data using df_prepare</span></span>
+<span id="cb5-50"><a href="#cb5-50" tabindex="-1"></a>dune.env_processed <span class="ot">&lt;-</span> <span class="fu">df_prepare</span>(dune.env)</span>
+<span id="cb5-51"><a href="#cb5-51" tabindex="-1"></a></span>
+<span id="cb5-52"><a href="#cb5-52" tabindex="-1"></a><span class="co"># Calculate stability with linearPred</span></span>
+<span id="cb5-53"><a href="#cb5-53" tabindex="-1"></a>stability_dune_linear <span class="ot">&lt;-</span> <span class="fu">betaStability</span>(</span>
+<span id="cb5-54"><a href="#cb5-54" tabindex="-1"></a>    <span class="at">comtable =</span> dune,</span>
+<span id="cb5-55"><a href="#cb5-55" tabindex="-1"></a>    <span class="at">envmeta =</span> dune.env_processed,</span>
+<span id="cb5-56"><a href="#cb5-56" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">&quot;linearPred&quot;</span></span>
+<span id="cb5-57"><a href="#cb5-57" tabindex="-1"></a>)</span>
+<span id="cb5-58"><a href="#cb5-58" tabindex="-1"></a><span class="co">#&gt; Warning in dist(BBmisc::normalize(envmeta, method = &quot;range&quot;, margin = 2), : NAs</span></span>
+<span id="cb5-59"><a href="#cb5-59" tabindex="-1"></a><span class="co">#&gt; introduced by coercion</span></span>
+<span id="cb5-60"><a href="#cb5-60" tabindex="-1"></a></span>
+<span id="cb5-61"><a href="#cb5-61" tabindex="-1"></a><span class="co"># Inspect the result</span></span>
+<span id="cb5-62"><a href="#cb5-62" tabindex="-1"></a><span class="fu">head</span>(stability_dune_linear)</span>
+<span id="cb5-63"><a href="#cb5-63" tabindex="-1"></a><span class="co">#&gt;   stability_Linear</span></span>
+<span id="cb5-64"><a href="#cb5-64" tabindex="-1"></a><span class="co">#&gt; 1      -0.10941041</span></span>
+<span id="cb5-65"><a href="#cb5-65" tabindex="-1"></a><span class="co">#&gt; 2       0.06295745</span></span>
+<span id="cb5-66"><a href="#cb5-66" tabindex="-1"></a><span class="co">#&gt; 3       0.20765436</span></span>
+<span id="cb5-67"><a href="#cb5-67" tabindex="-1"></a><span class="co">#&gt; 4       0.15511150</span></span>
+<span id="cb5-68"><a href="#cb5-68" tabindex="-1"></a><span class="co">#&gt; 5       0.06873168</span></span>
+<span id="cb5-69"><a href="#cb5-69" tabindex="-1"></a><span class="co">#&gt; 6       0.06454557</span></span>
+<span id="cb5-70"><a href="#cb5-70" tabindex="-1"></a><span class="fu">length</span>(stability_dune_linear)</span>
+<span id="cb5-71"><a href="#cb5-71" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+</div>
+<div id="mite-dataset-with-linearpred" class="section level3">
+<h3>Mite Dataset with linearPred</h3>
+<p>Load the <code>mite</code> (community data) and <code>mite.env</code>
+(environmental metadata) datasets from the vegan package, then calculate
+stability:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">data</span>(mite)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="fu">data</span>(mite.env)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co"># Inspect the data</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">head</span>(mite)</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;   Brachy PHTH HPAV RARD SSTR Protopl MEGR MPRO TVIE HMIN HMIN2 NPRA TVEL ONOV</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt; 1     17    5    5    3    2       1    4    2    2    1     4    1   17    4</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; 2      2    7   16    0    6       0    4    2    0    0     1    3   21   27</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; 3      4    3    1    1    2       0    3    0    0    0     6    3   20   17</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; 4     23    7   10    2    2       0    4    0    1    2    10    0   18   47</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; 5      5    8   13    9    0      13    0    0    0    3    14    3   32   43</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; 6     19    7    5    9    3       2    3    0    0   20    16    2   13   38</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;   SUCT LCIL Oribatl1 Ceratoz1 PWIL Galumna1 Stgncrs2 HRUF Trhypch1 PPEL NCOR</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; 1    9   50        3        1    1        8        0    0        0    0    0</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; 2   12  138        6        0    1        3        9    1        1    1    2</span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; 3   10   89        3        0    2        1        8    0        3    0    2</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt; 4   17  108       10        1    0        1        2    1        2    1    3</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; 5   27    5        1        0    5        2        1    0        1    0    0</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt; 6   39    3        5        0    1        1        8    0        4    0    1</span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt;   SLAT FSET Lepidzts Eupelops Miniglmn LRUG PLAG2 Ceratoz3 Oppiminu Trimalc2</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; 1    0    0        0        0        0    0     0        0        0        0</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; 2    2    2        1        0        0    0     0        0        0        0</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; 3    0    8        0        0        0    0     0        0        0        0</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; 4    2   12        0        0        0    0     0        0        0        0</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; 5    0   12        2        0        0    0     0        0        0        0</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; 6    0   10        0        0        0    0     0        0        0        0</span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="fu">head</span>(mite.env)</span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt;   SubsDens WatrCont Substrate Shrub    Topo</span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; 1    39.18   350.15   Sphagn1   Few Hummock</span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; 2    54.99   434.81    Litter   Few Hummock</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; 3    46.07   371.72 Interface   Few Hummock</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; 4    48.19   360.50   Sphagn1   Few Hummock</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; 5    23.55   204.13   Sphagn1   Few Hummock</span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; 6    57.32   311.55   Sphagn1   Few Hummock</span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co"># Dimensions of the datasets</span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Dimensions of mite:&quot;</span>, <span class="fu">dim</span>(mite), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; Dimensions of mite: 70 35</span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Dimensions of mite.env:&quot;</span>, <span class="fu">dim</span>(mite.env), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb6-40"><a href="#cb6-40" tabindex="-1"></a><span class="co">#&gt; Dimensions of mite.env: 70 5</span></span>
+<span id="cb6-41"><a href="#cb6-41" tabindex="-1"></a></span>
+<span id="cb6-42"><a href="#cb6-42" tabindex="-1"></a><span class="co"># Process environmental data using df_prepare</span></span>
+<span id="cb6-43"><a href="#cb6-43" tabindex="-1"></a>mite.env_processed <span class="ot">&lt;-</span> <span class="fu">df_prepare</span>(mite.env)</span>
+<span id="cb6-44"><a href="#cb6-44" tabindex="-1"></a></span>
+<span id="cb6-45"><a href="#cb6-45" tabindex="-1"></a><span class="co"># Calculate stability with linearPred</span></span>
+<span id="cb6-46"><a href="#cb6-46" tabindex="-1"></a>stability_mite_linear <span class="ot">&lt;-</span> <span class="fu">betaStability</span>(</span>
+<span id="cb6-47"><a href="#cb6-47" tabindex="-1"></a>    <span class="at">comtable =</span> mite,</span>
+<span id="cb6-48"><a href="#cb6-48" tabindex="-1"></a>    <span class="at">envmeta =</span> mite.env_processed,</span>
+<span id="cb6-49"><a href="#cb6-49" tabindex="-1"></a>    <span class="at">method =</span> <span class="st">&quot;linearPred&quot;</span></span>
+<span id="cb6-50"><a href="#cb6-50" tabindex="-1"></a>)</span>
+<span id="cb6-51"><a href="#cb6-51" tabindex="-1"></a><span class="co">#&gt; Warning in dist(BBmisc::normalize(envmeta, method = &quot;range&quot;, margin = 2), : NAs</span></span>
+<span id="cb6-52"><a href="#cb6-52" tabindex="-1"></a><span class="co">#&gt; introduced by coercion</span></span>
+<span id="cb6-53"><a href="#cb6-53" tabindex="-1"></a></span>
+<span id="cb6-54"><a href="#cb6-54" tabindex="-1"></a><span class="co"># Inspect the result</span></span>
+<span id="cb6-55"><a href="#cb6-55" tabindex="-1"></a><span class="fu">head</span>(stability_mite_linear)</span>
+<span id="cb6-56"><a href="#cb6-56" tabindex="-1"></a><span class="co">#&gt;   stability_Linear</span></span>
+<span id="cb6-57"><a href="#cb6-57" tabindex="-1"></a><span class="co">#&gt; 1     0.0246162099</span></span>
+<span id="cb6-58"><a href="#cb6-58" tabindex="-1"></a><span class="co">#&gt; 2    -0.0047508295</span></span>
+<span id="cb6-59"><a href="#cb6-59" tabindex="-1"></a><span class="co">#&gt; 3    -0.0001991863</span></span>
+<span id="cb6-60"><a href="#cb6-60" tabindex="-1"></a><span class="co">#&gt; 4     0.0161315321</span></span>
+<span id="cb6-61"><a href="#cb6-61" tabindex="-1"></a><span class="co">#&gt; 5     0.0528486489</span></span>
+<span id="cb6-62"><a href="#cb6-62" tabindex="-1"></a><span class="co">#&gt; 6     0.0533943609</span></span>
+<span id="cb6-63"><a href="#cb6-63" tabindex="-1"></a><span class="fu">length</span>(stability_mite_linear)</span>
+<span id="cb6-64"><a href="#cb6-64" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+</div>
+<div id="visualizing-results" class="section level3">
+<h3>Visualizing Results</h3>
+<p>Visualize the stability results for all datasets using
+<code>linearPred</code>:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>p_mite <span class="ot">&lt;-</span> <span class="fu">plotStability</span>(stability_mite_linear)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>p_mite</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>p_dune <span class="ot">&lt;-</span> <span class="fu">plotStability</span>(stability_dune_linear)</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>p_dune</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>p_BCI <span class="ot">&lt;-</span> <span class="fu">plotStability</span>(stability_BCI_linear)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>p_BCI</span></code></pre></div>
+<p><img role="img" src="data:image/png;base64,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" /><!-- --></p>
+</div>
+</div>
+<div id="summary" class="section level2">
+<h2>Summary</h2>
+<p><strong>General applicability across different datasets</strong>:
+Using the simple and fast <code>linearPred</code> method, we
+successfully calculated stability for three different datasets (BCI,
+dune, and mite) representing different ecological systems. This
+demonstrates the versatility of the BetaStability package across various
+types of ecological data.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">print</span>(<span class="fu">sessionInfo</span>())</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; R version 4.5.3 (2026-03-11 ucrt)</span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; Platform: x86_64-w64-mingw32/x64</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="co">#&gt; Running under: Windows 11 x64 (build 26200)</span></span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt; Matrix products: default</span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt;   LAPACK version 3.12.1</span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; locale:</span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; [1] LC_COLLATE=C                          </span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="co">#&gt; [2] LC_CTYPE=English_United States.utf8   </span></span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; [3] LC_MONETARY=English_United States.utf8</span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; [4] LC_NUMERIC=C                          </span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; [5] LC_TIME=English_United States.utf8    </span></span>
+<span id="cb10-15"><a href="#cb10-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-16"><a href="#cb10-16" tabindex="-1"></a><span class="co">#&gt; time zone: Asia/Shanghai</span></span>
+<span id="cb10-17"><a href="#cb10-17" tabindex="-1"></a><span class="co">#&gt; tzcode source: internal</span></span>
+<span id="cb10-18"><a href="#cb10-18" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-19"><a href="#cb10-19" tabindex="-1"></a><span class="co">#&gt; attached base packages:</span></span>
+<span id="cb10-20"><a href="#cb10-20" tabindex="-1"></a><span class="co">#&gt; [1] stats     graphics  grDevices utils     datasets  methods   base     </span></span>
+<span id="cb10-21"><a href="#cb10-21" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-22"><a href="#cb10-22" tabindex="-1"></a><span class="co">#&gt; other attached packages:</span></span>
+<span id="cb10-23"><a href="#cb10-23" tabindex="-1"></a><span class="co">#&gt; [1] ggplot2_4.0.2       vegan_2.7-3         permute_0.9-10     </span></span>
+<span id="cb10-24"><a href="#cb10-24" tabindex="-1"></a><span class="co">#&gt; [4] betaStability_0.0.4</span></span>
+<span id="cb10-25"><a href="#cb10-25" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-26"><a href="#cb10-26" tabindex="-1"></a><span class="co">#&gt; loaded via a namespace (and not attached):</span></span>
+<span id="cb10-27"><a href="#cb10-27" tabindex="-1"></a><span class="co">#&gt;  [1] sass_0.4.10          generics_0.1.4       shape_1.4.6.1       </span></span>
+<span id="cb10-28"><a href="#cb10-28" tabindex="-1"></a><span class="co">#&gt;  [4] stringi_1.8.7        lattice_0.22-9       usedist_0.4.0       </span></span>
+<span id="cb10-29"><a href="#cb10-29" tabindex="-1"></a><span class="co">#&gt;  [7] digest_0.6.39        magrittr_2.0.4       rioja_1.0-7         </span></span>
+<span id="cb10-30"><a href="#cb10-30" tabindex="-1"></a><span class="co">#&gt; [10] evaluate_1.0.5       grid_4.5.3           RColorBrewer_1.1-3  </span></span>
+<span id="cb10-31"><a href="#cb10-31" tabindex="-1"></a><span class="co">#&gt; [13] BBmisc_1.13.1        iterators_1.0.14     fastmap_1.2.0       </span></span>
+<span id="cb10-32"><a href="#cb10-32" tabindex="-1"></a><span class="co">#&gt; [16] xgboost_3.2.1.1      glmnet_4.1-10        Matrix_1.7-5        </span></span>
+<span id="cb10-33"><a href="#cb10-33" tabindex="-1"></a><span class="co">#&gt; [19] foreach_1.5.2        doParallel_1.0.17    plyr_1.8.9          </span></span>
+<span id="cb10-34"><a href="#cb10-34" tabindex="-1"></a><span class="co">#&gt; [22] jsonlite_2.0.0       backports_1.5.0      survival_3.8-6      </span></span>
+<span id="cb10-35"><a href="#cb10-35" tabindex="-1"></a><span class="co">#&gt; [25] mgcv_1.9-4           scales_1.4.0         pbapply_1.7-4       </span></span>
+<span id="cb10-36"><a href="#cb10-36" tabindex="-1"></a><span class="co">#&gt; [28] codetools_0.2-20     jquerylib_0.1.4      cli_3.6.5           </span></span>
+<span id="cb10-37"><a href="#cb10-37" tabindex="-1"></a><span class="co">#&gt; [31] rlang_1.1.7          splines_4.5.3        withr_3.0.2         </span></span>
+<span id="cb10-38"><a href="#cb10-38" tabindex="-1"></a><span class="co">#&gt; [34] cachem_1.1.0         yaml_2.3.12          otel_0.2.0          </span></span>
+<span id="cb10-39"><a href="#cb10-39" tabindex="-1"></a><span class="co">#&gt; [37] tools_4.5.3          parallel_4.5.3       reshape2_1.4.5      </span></span>
+<span id="cb10-40"><a href="#cb10-40" tabindex="-1"></a><span class="co">#&gt; [40] checkmate_2.3.4      dplyr_1.2.0          gdm_1.6.0-7         </span></span>
+<span id="cb10-41"><a href="#cb10-41" tabindex="-1"></a><span class="co">#&gt; [43] vctrs_0.7.2          R6_2.6.1             lifecycle_1.0.5     </span></span>
+<span id="cb10-42"><a href="#cb10-42" tabindex="-1"></a><span class="co">#&gt; [46] randomForest_4.7-1.2 stringr_1.6.0        MASS_7.3-65         </span></span>
+<span id="cb10-43"><a href="#cb10-43" tabindex="-1"></a><span class="co">#&gt; [49] cluster_2.1.8.2      pkgconfig_2.0.3      pillar_1.11.1       </span></span>
+<span id="cb10-44"><a href="#cb10-44" tabindex="-1"></a><span class="co">#&gt; [52] bslib_0.10.0         gtable_0.3.6         data.table_1.18.2.1 </span></span>
+<span id="cb10-45"><a href="#cb10-45" tabindex="-1"></a><span class="co">#&gt; [55] glue_1.8.0           Rcpp_1.1.1           xfun_0.57           </span></span>
+<span id="cb10-46"><a href="#cb10-46" tabindex="-1"></a><span class="co">#&gt; [58] tibble_3.3.1         tidyselect_1.2.1     rstudioapi_0.18.0   </span></span>
+<span id="cb10-47"><a href="#cb10-47" tabindex="-1"></a><span class="co">#&gt; [61] knitr_1.51           farver_2.1.2         nlme_3.1-169        </span></span>
+<span id="cb10-48"><a href="#cb10-48" tabindex="-1"></a><span class="co">#&gt; [64] htmltools_0.5.9      labeling_0.4.3       rmarkdown_2.31      </span></span>
+<span id="cb10-49"><a href="#cb10-49" tabindex="-1"></a><span class="co">#&gt; [67] compiler_4.5.3       S7_0.2.1</span></span></code></pre></div>
+</div>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
