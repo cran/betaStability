@@ -40,8 +40,25 @@ result_linear <- betaStability(
 )
 
 # Inspect the result
-head(result_linear)
-length(result_linear)
+length(result_linear$stability_Linear)
+
+# Calculate stability with linearPred with symmetric algorithm
+result_linear_symmetric <- betaStability(
+    comtable = varespec,
+    envmeta = varechem,
+    method = "linearPred",
+    symmetric = TRUE
+)
+
+# Calculate the correlations between the results
+corr_pearson <- cor.test(result_linear$stability_Linear, 
+                         result_linear_symmetric$stability_Linear, 
+                         method = c("pearson"))
+corr_spearman <- cor.test(result_linear$stability_Linear, 
+                          result_linear_symmetric$stability_Linear, 
+                          method = c("spearman"))
+corr_pearson
+corr_spearman
 
 ## ----multiple-methods---------------------------------------------------------
 # Calculate stability with multiple methods
@@ -83,13 +100,18 @@ p2
 p3 <- plotStability(results_all)
 p3
 
+## ----plot-correlation---------------------------------------------------------
+# Plot stability correlations between all pairs of methods
+p4 <- plotCorrelation(results_all)
+p4
+
 ## ----custom-sitenames---------------------------------------------------------
 # Create custom site names
 custom_sitenames <- paste("Site", seq_len(nrow(varespec)))
 
 # Plot with custom site names
-p4 <- plotStability(results_multi, sitenames = custom_sitenames)
-p4
+p5 <- plotStability(results_multi, sitenames = custom_sitenames)
+p5
 
 ## -----------------------------------------------------------------------------
 print(sessionInfo())

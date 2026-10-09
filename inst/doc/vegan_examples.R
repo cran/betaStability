@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 library(betaStability)
 library(vegan)
 library(ggplot2)
+library(sf)
 data("BCI", "BCI.env", "mite", "mite.env", "dune", "dune.env")
 
 ## ----dataframe_preparing function---------------------------------------------
@@ -45,6 +46,18 @@ stability_BCI_linear <- betaStability(
 # Inspect the result
 head(stability_BCI_linear)
 length(stability_BCI_linear)
+
+BCI.coords <- st_as_sf(BCI.env, coords = c("UTM.EW", "UTM.NS"), crs = 32617)
+BCI.coords <- st_transform(BCI.coords, 4326)
+BCI.longlat <- st_coordinates(BCI.coords)
+BCI.longlat <- as.data.frame(BCI.longlat)
+rownames(BCI.longlat) <- seq_len(nrow(BCI.longlat))
+BCI.longlat$site <- rownames(BCI.longlat)
+plotStabilityMap(stability_BCI_linear, 
+                 BCI.longlat, 
+                 sitenames = paste("site", rownames(BCI.longlat)),
+                 elev = FALSE
+                 )
 
 ## ----linear-dune--------------------------------------------------------------
 data(dune)

@@ -1,7 +1,7 @@
 Package: betaStability
 Title: Quantify the Compositional Stability of Each Community Based on
         a Single Sampling Event
-Version: 0.0.4
+Version: 0.1.0
 Authors@R: 
     person(
         "Yu", 
@@ -16,17 +16,19 @@ URL: https://github.com/gaoyu19920914/betaStability/
 BugReports: https://github.com/gaoyu19920914/betaStability/issues/
 License: MIT + file LICENSE
 Encoding: UTF-8
-RoxygenNote: 7.3.3
-VignetteBuilder: knitr
-Imports: BBmisc, gdm, ggplot2, glmnet, mgcv, randomForest, reshape2,
-        stats, usedist, vegan, xgboost
-Suggests: BiocManager, knitr, rioja, rmarkdown, testthat (>= 3.0.0)
+VignetteBuilder: knitr, rmarkdown
+Imports: BBmisc, elevatr, gdm, ggplot2, glmnet, mgcv, randomForest,
+        raster, reshape2, stats, usedist, vegan, xgboost
+Suggests: BiocManager, knitr, rioja, rmarkdown, sf, testthat (>= 3.0.0)
 biocViews: StatisticalMethod, Software
 Config/testthat/edition: 3
+Depends: R (>= 3.5)
+LazyData: true
+Config/roxygen2/version: 8.1.0
 NeedsCompilation: no
-Packaged: 2026-06-01 07:50:05 UTC; gaoyu
+Packaged: 2026-10-09 03:04:59 UTC; gaoyu
 Author: Yu Gao [aut, cre, cph, fnd] (ORCID:
     <https://orcid.org/0000-0003-4406-2978>)
 Maintainer: Yu Gao <gaoyu19920914@gmail.com>
 Repository: CRAN
-Date/Publication: 2026-06-05 15:00:12 UTC
+Date/Publication: 2026-10-09 03:50:02 UTC
